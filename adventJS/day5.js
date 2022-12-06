@@ -1,33 +1,60 @@
 console.clear();
+
+//Backtracking approach (not good at all)
+// function getMaxGifts(giftsCities, maxGifts, maxCities) {
+//   const backtrackSums = (giftsCities, maxGifts, maxCities, currentGifts) => {
+//     for (let gift of giftsCities) {
+//       if (!currentGifts.includes(gift) && currentGifts.length < maxCities)
+//         currentGifts.push(gift);
+//       else continue;
+
+//       let currentSum = backtrackSums(
+//         giftsCities,
+//         maxGifts,
+//         maxCities,
+//         currentGifts
+//       );
+//       if (currentGifts.length == maxCities && currentSum <= maxGifts)
+//         return currentSum;
+
+//       if (currentSum <= maxGifts)
+//         return currentGifts.reduce((acc, curr) => (acc += curr), 0);
+//       else {
+//         currentGifts.pop();
+//       }
+//     }
+//     return currentGifts.reduce((acc, curr) => (acc += curr), 0);
+//   };
+
+//   giftsCities = giftsCities
+//     .map((gift) => backtrackSums(giftsCities, maxGifts, maxCities, [gift]))
+//     .filter((x) => x <= maxGifts);
+//   return Math.max(...(giftsCities.length ? giftsCities : [0]));
+// }
+
+// JS Pure Approach
 function getMaxGifts(giftsCities, maxGifts, maxCities) {
-  const backtrackSums = (giftsCities, maxGifts, maxCities, currentGifts) => {
-    for (let gift of giftsCities) {
-      if (!currentGifts.includes(gift) && currentGifts.length < maxCities)
-        currentGifts.push(gift);
-      else continue;
-
-      let currentSum = backtrackSums(
-        giftsCities,
-        maxGifts,
-        maxCities,
-        currentGifts
-      );
-      if (currentGifts.length == maxCities && currentSum <= maxGifts)
-        return currentSum;
-
-      if (currentSum <= maxGifts)
-        return currentGifts.reduce((acc, curr) => (acc += curr), 0);
-      else {
-        currentGifts.pop();
-      }
-    }
-    return currentGifts.reduce((acc, curr) => (acc += curr), 0);
-  };
-
   giftsCities = giftsCities
-    .map((gift) => backtrackSums(giftsCities, maxGifts, maxCities, [gift]))
-    .filter((x) => x <= maxGifts);
+    .sort((x, y) => y - x)
+    .reduce((subSets, _, i, array) => {
+      if (!i) subSets.push(array.slice(0, maxCities));
+      else {
+        array.unshift(array.pop());
+        subSets.push(array.slice(0, maxCities));
+        subSets.push(array.slice(0, maxCities - 1));
+      }
+      return subSets;
+    }, [])
+    .filter(
+      (subSets) => subSets.reduce((acc, curr) => (acc += curr), 0) <= maxGifts
+    )
+    .reduce(
+      (result, subSets) => (
+        result.push(subSets.reduce((acc, curr) => (acc += curr), 0)), result
+      ),
+      []
+    );
   return Math.max(...(giftsCities.length ? giftsCities : [0]));
 }
 
-console.log(getMaxGifts([50], 15, 1));
+console.log(getMaxGifts([50, 10, 40, 1000, 500, 200], 199, 4));
