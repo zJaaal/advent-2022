@@ -37,27 +37,15 @@ function getMaxGifts(giftsCities, maxGifts, maxCities) {
   giftsCities = giftsCities
     .sort((x, y) => y - x)
     .reduce((result, _, i) => {
-      if (!i) {
-        let sum = giftsCities
-          .slice(0, maxCities)
-          .reduce((acc, curr) => (acc += curr), 0);
+      if (i) giftsCities.unshift(giftsCities.pop());
 
-        sum <= maxGifts && result.push(sum);
-      } else {
-        giftsCities.unshift(giftsCities.pop());
+      let sum = giftsCities
+        .slice(0, maxCities)
+        .reduce((acc, curr) => (acc += curr), 0);
+      sum <= maxGifts && result.push(sum);
 
-        let sum = giftsCities
-          .slice(0, maxCities)
-          .reduce((acc, curr) => (acc += curr), 0);
-
-        sum <= maxGifts && result.push(sum);
-
-        let sum2 = giftsCities
-          .slice(0, maxCities - 1)
-          .reduce((acc, curr) => (acc += curr), 0);
-
-        sum2 <= maxGifts && result.push(sum2);
-      }
+      sum - giftsCities[maxCities - 1] <= maxGifts &&
+        result.push(sum - giftsCities[maxCities - 1]);
       return result;
     }, []);
   return Math.max(...(giftsCities.length ? giftsCities : [0]));
