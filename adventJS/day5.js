@@ -36,21 +36,20 @@ console.clear();
 function getMaxGifts(giftsCities, maxGifts, maxCities) {
   giftsCities = giftsCities
     .sort((x, y) => y - x)
-    .reduce((subSets, _, i, array) => {
-      if (!i) subSets.push(array.slice(0, maxCities));
+    .reduce((subSets, _, i) => {
+      if (!i) subSets.push(giftsCities.slice(0, maxCities));
       else {
-        array.unshift(array.pop());
-        subSets.push(array.slice(0, maxCities));
-        subSets.push(array.slice(0, maxCities - 1));
+        giftsCities.unshift(giftsCities.pop());
+        subSets.push(giftsCities.slice(0, maxCities));
+        subSets.push(giftsCities.slice(0, maxCities - 1));
       }
       return subSets;
     }, [])
-    .filter(
-      (subSets) => subSets.reduce((acc, curr) => (acc += curr), 0) <= maxGifts
-    )
     .reduce(
-      (result, subSets) => (
-        result.push(subSets.reduce((acc, curr) => (acc += curr), 0)), result
+      (result, subSets, i) => (
+        (i = subSets.reduce((acc, curr) => (acc += curr), 0)),
+        i <= maxGifts && result.push(i),
+        result
       ),
       []
     );
