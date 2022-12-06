@@ -36,23 +36,30 @@ console.clear();
 function getMaxGifts(giftsCities, maxGifts, maxCities) {
   giftsCities = giftsCities
     .sort((x, y) => y - x)
-    .reduce((subSets, _, i) => {
-      if (!i) subSets.push(giftsCities.slice(0, maxCities));
-      else {
+    .reduce((result, _, i) => {
+      if (!i) {
+        let sum = giftsCities
+          .slice(0, maxCities)
+          .reduce((acc, curr) => (acc += curr), 0);
+
+        sum <= maxGifts && result.push(sum);
+      } else {
         giftsCities.unshift(giftsCities.pop());
-        subSets.push(giftsCities.slice(0, maxCities));
-        subSets.push(giftsCities.slice(0, maxCities - 1));
+
+        let sum = giftsCities
+          .slice(0, maxCities)
+          .reduce((acc, curr) => (acc += curr), 0);
+
+        sum <= maxGifts && result.push(sum);
+
+        let sum2 = giftsCities
+          .slice(0, maxCities - 1)
+          .reduce((acc, curr) => (acc += curr), 0);
+
+        sum2 <= maxGifts && result.push(sum2);
       }
-      return subSets;
-    }, [])
-    .reduce(
-      (result, subSets, i) => (
-        (i = subSets.reduce((acc, curr) => (acc += curr), 0)),
-        i <= maxGifts && result.push(i),
-        result
-      ),
-      []
-    );
+      return result;
+    }, []);
   return Math.max(...(giftsCities.length ? giftsCities : [0]));
 }
 
