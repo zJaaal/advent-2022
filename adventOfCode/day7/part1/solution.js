@@ -18,7 +18,7 @@ I honestly don't know how to do it
 */
 function solution(input) {
   let inputArray = input.split(`\n`);
-  let rootFolder = { parentId: null, id: '/', children: [], value: null };
+  let rootFolder = { parentId: null, id: '/', children: [], size: null };
   let currentFolder = {};
   console.log(inputArray);
 
@@ -67,14 +67,14 @@ function fillFolder(toFill, files, parentId) {
           parentId,
           id: currentFile[1],
           children: null,
-          value: +currentFile[0],
+          size: +currentFile[0],
         });
       else
         toFill.children.push({
           parentId,
           id: currentFile[1],
           children: [],
-          value: null,
+          size: null,
         });
     } else break;
   }
