@@ -1,5 +1,6 @@
 import { input, testInput } from '../input.js';
 console.clear();
+console.log('----------------------------------');
 
 /*
 To begin, find all of the directories with a total size of at most 100000,
@@ -13,17 +14,7 @@ What is the sum of the total sizes of those directories?
  */
 
 /*
-Literally I'm solving it with nodes
-
-You need to maintain the current localization in order to find the correct node
-use this:
-let root = '/'
-root = ' ' + cmdArgs[2]
-or
-root = root.substring(0, root.lastIndexOf(' '))
-and then you can go like
-root.split(" ") and search one by one from the root folder,
-that way you maintain the correct reference
+  SOLVED!
 */
 let currentDepth = 0;
 let root = ['/'];
@@ -43,24 +34,15 @@ function solution(input) {
       let cmdArgs = cmd.split(' ');
       switch (cmdArgs[1]) {
         case 'cd': {
-          // console.log(cmd, currentFolder);
           if (cmdArgs[2] != '..') {
             if (cmdArgs[2] != '/') root.push(cmdArgs[2]);
 
-            currentFolder = searchNode(
-              rootFolder,
-              cmdArgs[2],
-              currentDepth + 1
-            );
+            currentFolder = searchNode(rootFolder, [...root]);
           } else {
-            root.pop();
-            currentFolder = searchNode(
-              rootFolder,
-              currentFolder.parentId || '/',
-              currentDepth - 1
-            );
+            if (root.length > 1) root.pop();
+            currentFolder = searchNode(rootFolder, [...root]);
           }
-          console.log(root);
+          // console.log(cmd, currentFolder, root);
           currentDepth = currentFolder.depth;
           break;
         }
@@ -75,21 +57,26 @@ function solution(input) {
   return getFinalResult(calculateSizes(rootFolder, 0)[1], 0);
 }
 
-function searchNode(node, id, depth, nodeFound = []) {
-  if (node.id == id && node.children && node.depth == depth)
-    nodeFound.push(node);
-  else if (node.children)
-    for (let i = 0; i < node.children.length; i++)
-      searchNode(node.children[i], id, depth, nodeFound);
-  return nodeFound[0];
+function searchNode(node, path) {
+  if (node.id == path[0]) {
+    path.shift();
+    if (!path.length) return node;
+    else {
+      for (let i = 0; i < node.children.length; i++) {
+        let foundNode = searchNode(node.children[i], path);
+        if (foundNode) return foundNode;
+      }
+    }
+  }
+  return undefined;
 }
 
-function fillFolder(toFill, files, parentId) {
+function fillFolder(node, files, parentId) {
   for (let file of files) {
     let currentFile = file.split(' ');
     if (currentFile[0] != '$') {
       if (currentFile[0] != 'dir')
-        toFill.children.push({
+        node.children.push({
           parentId,
           id: currentFile[1],
           children: null,
@@ -97,7 +84,7 @@ function fillFolder(toFill, files, parentId) {
           depth: currentDepth + 1,
         });
       else
-        toFill.children.push({
+        node.children.push({
           parentId,
           id: currentFile[1],
           children: [],
@@ -132,4 +119,4 @@ function getFinalResult(node, finalResult) {
   return finalResult;
 }
 
-console.log(JSON.stringify(solution(testInput)));
+console.log(JSON.stringify(solution(input)));
