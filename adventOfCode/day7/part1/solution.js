@@ -20,12 +20,13 @@ use this:
 let root = '/'
 root = ' ' + cmdArgs[2]
 or
-root = root.substring(0, root.lastIndexOf(' ')
+root = root.substring(0, root.lastIndexOf(' '))
 and then you can go like
 root.split(" ") and search one by one from the root folder,
 that way you maintain the correct reference
 */
 let currentDepth = 0;
+let root = ['/'];
 function solution(input) {
   let inputArray = input.split(`\n`);
   let rootFolder = {
@@ -43,18 +44,23 @@ function solution(input) {
       switch (cmdArgs[1]) {
         case 'cd': {
           // console.log(cmd, currentFolder);
-          if (cmdArgs[2] != '..')
+          if (cmdArgs[2] != '..') {
+            if (cmdArgs[2] != '/') root.push(cmdArgs[2]);
+
             currentFolder = searchNode(
               rootFolder,
               cmdArgs[2],
               currentDepth + 1
             );
-          else
+          } else {
+            root.pop();
             currentFolder = searchNode(
               rootFolder,
               currentFolder.parentId || '/',
               currentDepth - 1
             );
+          }
+          console.log(root);
           currentDepth = currentFolder.depth;
           break;
         }
@@ -116,7 +122,7 @@ function calculateSizes(node) {
 function getFinalResult(node, finalResult) {
   node.children.forEach((node) => {
     if (node.size < 100000 && node.children) {
-      console.log(node);
+      // console.log(node);
       finalResult += node.size;
     }
     if (node.children) {
