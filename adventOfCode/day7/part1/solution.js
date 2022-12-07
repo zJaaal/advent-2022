@@ -13,14 +13,20 @@ What is the sum of the total sizes of those directories?
  */
 
 /*
-This is solved with trees
+This is solved with nodes
 I honestly don't know how to do it
 */
+let currentDepth = 0;
 function solution(input) {
   let inputArray = input.split(`\n`);
-  let rootFolder = { parentId: null, id: '/', children: [], size: null };
+  let rootFolder = {
+    parentId: null,
+    id: '/',
+    children: [],
+    size: null,
+    depth: 1,
+  };
   let currentFolder = {};
-  console.log(inputArray);
 
   inputArray.forEach((cmd, i, array) => {
     if (cmd.includes('$')) {
@@ -29,12 +35,20 @@ function solution(input) {
         case 'cd': {
           // console.log(cmd, currentFolder);
           if (cmdArgs[2] != '..')
-            currentFolder = searchNode(rootFolder, cmdArgs[2]);
+            currentFolder = searchNode(
+              rootFolder,
+              cmdArgs[2],
+              currentDepth + 1
+            );
           else
             currentFolder = searchNode(
               rootFolder,
-              currentFolder.parentId || '/'
+
+              currentFolder.parentId || '/',
+              currentDepth - 1
             );
+          currentDepth = currentFolder.depth;
+          // console.log(currentDepth);
           break;
         }
         case 'ls': {
@@ -50,11 +64,12 @@ function solution(input) {
   return rootFolder;
 }
 
-function searchNode(tree, id, nodeFound = []) {
-  if (tree.id == id && tree.children) nodeFound.push(tree);
-  else if (tree.children)
-    for (let i = 0; i < tree.children.length; i++)
-      searchNode(tree.children[i], id, nodeFound);
+function searchNode(node, id, depth, nodeFound = []) {
+  if (node.id == id && node.children && node.depth == depth)
+    nodeFound.push(node);
+  else if (node.children)
+    for (let i = 0; i < node.children.length; i++)
+      searchNode(node.children[i], id, depth, nodeFound);
   return nodeFound[0];
 }
 
@@ -68,6 +83,7 @@ function fillFolder(toFill, files, parentId) {
           id: currentFile[1],
           children: null,
           size: +currentFile[0],
+          depth: currentDepth + 1,
         });
       else
         toFill.children.push({
@@ -75,6 +91,7 @@ function fillFolder(toFill, files, parentId) {
           id: currentFile[1],
           children: [],
           size: null,
+          depth: currentDepth + 1,
         });
     } else break;
   }
