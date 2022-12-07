@@ -1,4 +1,4 @@
-import input from '../input.js';
+import { input, testInput } from '../input.js';
 console.clear();
 
 /*
@@ -13,8 +13,17 @@ What is the sum of the total sizes of those directories?
  */
 
 /*
-This is solved with nodes
-I honestly don't know how to do it
+Literally I'm solving it with nodes
+
+You need to maintain the current localization in order to find the correct node
+use this:
+let root = '/'
+root = ' ' + cmdArgs[2]
+or
+root = root.substring(0, root.lastIndexOf(' ')
+and then you can go like
+root.split(" ") and search one by one from the root folder,
+that way you maintain the correct reference
 */
 let currentDepth = 0;
 function solution(input) {
@@ -43,16 +52,13 @@ function solution(input) {
           else
             currentFolder = searchNode(
               rootFolder,
-
               currentFolder.parentId || '/',
               currentDepth - 1
             );
           currentDepth = currentFolder.depth;
-          // console.log(currentDepth);
           break;
         }
         case 'ls': {
-          // console.log(currentFolder);
           fillFolder(currentFolder, array.slice(i + 1), currentFolder.id);
           break;
         }
@@ -60,8 +66,7 @@ function solution(input) {
     }
   });
 
-  // console.log(rootFolder);
-  return rootFolder;
+  return getFinalResult(calculateSizes(rootFolder, 0)[1], 0);
 }
 
 function searchNode(node, id, depth, nodeFound = []) {
@@ -97,4 +102,28 @@ function fillFolder(toFill, files, parentId) {
   }
 }
 
-console.log(JSON.stringify(solution(input)));
+function calculateSizes(node) {
+  let currentSize = 0;
+  node.children.forEach((node) => {
+    if (node.children) {
+      currentSize += calculateSizes(node)[0];
+    } else currentSize += node.size;
+  });
+  node.size = currentSize;
+  return [currentSize, node];
+}
+
+function getFinalResult(node, finalResult) {
+  node.children.forEach((node) => {
+    if (node.size < 100000 && node.children) {
+      console.log(node);
+      finalResult += node.size;
+    }
+    if (node.children) {
+      finalResult += getFinalResult(node, 0);
+    }
+  });
+  return finalResult;
+}
+
+console.log(JSON.stringify(solution(testInput)));
