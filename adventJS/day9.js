@@ -14,7 +14,7 @@
 //   );
 // }
 
-//Another solution
+//Another solution (not mine)
 //Basicly this counts how much it takes to turn on every 0
 function countTime(leds) {
   //How much 0 are together after this, is how much it takes for every 0
