@@ -81,13 +81,13 @@ function solution(input) {
         } else {
           //The reference is lost when one of the knots get to a corner.
           //You need to maintain the reference differently
+          //This works differently. Refer to the problem to see how it behaves
           let distance = calculateDistance(
             tailPositions[i - 1].at(-1)[0],
             currentTail[0],
             tailPositions[i - 1].at(-1)[1],
             currentTail[1]
           );
-          console.log(distance, i);
           if (distance == 2 || distance == 2.23606797749979) {
             tail.push(tailMovement[direction](tailPositions[i - 1].at(-1)));
             if (
