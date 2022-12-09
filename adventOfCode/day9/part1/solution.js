@@ -1,4 +1,4 @@
-import { input, testInput } from '../input.js';
+import { input, part2TestInput as testInput } from '../input.js';
 console.clear();
 console.log('----------------------------------');
 
@@ -32,6 +32,8 @@ let tailMovement = {
   R: (headPosition) => [headPosition[0] - 1, headPosition[1]],
   L: (headPosition) => [headPosition[0] + 1, headPosition[1]],
 };
+let calculateDistance = (x1, x2, y1, y2) =>
+  Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 
 function solution(input) {
   let headPositions = [[0, 0]];
@@ -46,10 +48,13 @@ function solution(input) {
       headPositions.push(headMovement[direction](headPositions.at(-1)));
       let currentHead = headPositions.at(-1);
       let currentTail = tailPositions.at(-1);
-      if (
-        Math.abs(currentHead[0] - currentTail[0]) == 2 ||
-        Math.abs(currentHead[1] - currentTail[1]) == 2
-      ) {
+      let distance = calculateDistance(
+        currentHead[0],
+        currentTail[0],
+        currentHead[1],
+        currentTail[1]
+      );
+      if (distance == 2 || distance == 2.23606797749979) {
         tailPositions.push(tailMovement[direction](currentHead));
         if (
           !differentTailPossitions.some(
