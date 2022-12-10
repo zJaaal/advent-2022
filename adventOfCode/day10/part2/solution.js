@@ -4,6 +4,8 @@ console.log('----------------------------------');
 
 /*
 This is crazy. But I know how to do it
+
+Its crazy because it's literally rendering things
  */
 function solution(input) {
   let cycle = 0;
@@ -60,22 +62,12 @@ function solution(input) {
     let cmd = inputArray[i];
     let cmdArray = cmd.split(' ');
     if (cmdArray[0] == 'noop') {
-      // console.log(cycle, currentMilestone);
       if (cycle == currentMilestone) {
         currentMilestone += 40;
         pointer = 0;
         CRTResult.push(currentCRT);
         currentCRT = Array.from({ length: 40 }, (_) => '#');
       }
-
-      // if (cycle > 199)
-      //   console.log(
-      //     cycle,
-      //     currentCRT[pointer],
-      //     sprite[pointer],
-      //     currentCRT[pointer] == '#',
-      //     sprite[pointer] == '#'
-      //   );
 
       if (sprite[pointer] == '#' && currentCRT[pointer] == '#')
         currentCRT[pointer] = '#';
@@ -92,14 +84,6 @@ function solution(input) {
           CRTResult.push(currentCRT);
           currentCRT = Array.from({ length: 40 }, (_) => '#');
         }
-        // if (cycle > 199)
-        //   console.log(
-        //     cycle,
-        //     currentCRT[pointer],
-        //     sprite[pointer],
-        //     currentCRT[pointer] == '#',
-        //     sprite[pointer] == '#'
-        //   );
 
         if (sprite[pointer] == '#' && currentCRT[pointer] == '#')
           currentCRT[pointer] = '#';
@@ -123,5 +107,5 @@ function solution(input) {
   return CRTResult;
 }
 
-console.log(JSON.stringify(solution(input)));
+console.log(solution(input));
 // console.log(solution(testInput));

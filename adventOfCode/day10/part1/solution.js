@@ -19,8 +19,6 @@ function solution(input) {
 
   for (let i = 0; i < inputArray.length; i++) {
     let cmd = inputArray[i];
-    // console.log(cmd);
-    // console.log(cycle, cmd);
     let cmdArray = cmd.split(' ');
     if (cmdArray[0] == 'noop') {
       if (cycle == currentMilestone) {
@@ -33,7 +31,6 @@ function solution(input) {
       for (let i = 0; i < 2; i++) {
         ++cycle;
         if (cycle == currentMilestone) {
-          // console.log(cycle, result);
           resultArray.push(result * cycle);
           currentMilestone += 40;
         }
