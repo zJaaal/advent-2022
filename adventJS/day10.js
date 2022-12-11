@@ -4,14 +4,15 @@ function checkJump(heights) {
   let length = heights.length;
   return (
     heights.reduce(
-      (directions, x, i) => (
+      (directions, x, i, array) => (
+        (array = directions.length),
         i != length - 1 &&
           x < heights[i + 1] &&
-          directions.at(-1) != 'UP' &&
+          directions[array - 1] != 'UP' &&
           directions.push('UP'),
         i != length - 1 &&
           x > heights[i + 1] &&
-          directions.at(-1) != 'DOWN' &&
+          directions[array - 1] != 'DOWN' &&
           directions.push('DOWN'),
         directions
       ),
