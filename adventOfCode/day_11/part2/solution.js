@@ -9,6 +9,9 @@ Same as part 1 but now it doesn't divide by 3 and is 10000 rounds
 let rounds = 10000;
 function solution(input) {
   let superModule = 1;
+  //All the mod that the monkey do can be multiply
+  //to create a common multplier and then clamp the values
+  //to values that will make the monkey throw the item where it should be
   input.forEach((monkey) => (superModule *= monkey.testNumber));
   for (let i = 0; i++ < rounds; ) {
     input.forEach((monkey, i) => {
