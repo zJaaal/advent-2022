@@ -3,7 +3,7 @@ console.clear();
 console.log('----------------------------------');
 
 /*
-Same but know any height = 1 can be the starting point
+Same but now any height = 1 can be the starting point
  */
 
 let start, end;
