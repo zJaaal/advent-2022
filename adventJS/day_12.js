@@ -1,5 +1,5 @@
 function selectSleigh(distance, sleighs) {
-  let bestSleigh = sleighs
+  const { name } = sleighs
     .reduce(
       (bestSleighs, sleigh, performance) => (
         (performance = sleigh.consumption * distance),
@@ -7,10 +7,10 @@ function selectSleigh(distance, sleighs) {
           bestSleighs.push({ name: sleigh.name, performance }),
         bestSleighs
       ),
-      []
+      [{ name: null }]
     )
     .pop();
-  return bestSleigh ? bestSleigh.name : null;
+  return name;
 }
 const distance = 30;
 const sleighs = [
