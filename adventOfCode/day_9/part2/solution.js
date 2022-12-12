@@ -23,39 +23,35 @@ const headTailMovement = {
   L: (headPosition) => [headPosition[0] + 1, headPosition[1]],
 };
 
-//Not working right, looks like is not going in tempo and lose reference again
-let knotMovement = {
-  U: (headKnotPosition, tailKnotPosition, distance) => {
-    if (distance == 2.23606797749979)
-      //If is on diagonal, go to where it was
-      return [headKnotPosition[0], headKnotPosition[1]];
+//Now working, thanks to reddit for some hints
+let knotMovement = (currentKnot, currentHead) => {
+  let [refX, refY] = [...currentKnot];
+  let diffX = Math.abs(currentKnot[0] - currentHead[0]);
+  let diffY = Math.abs(currentKnot[1] - currentHead[1]);
 
-    return [headKnotPosition[0], tailKnotPosition[1] + 1]; // Else move to where you should be
-  },
-  D: (headKnotPosition, tailKnotPosition, distance) => {
-    if (distance == 2.23606797749979)
-      return [headKnotPosition[0], headKnotPosition[1]];
+  if (diffX < 2 && diffY < 2) return;
 
-    return [headKnotPosition[0], tailKnotPosition[1] - 1];
-  },
-  R: (headKnotPosition, tailKnotPosition, distance) => {
-    if (distance == 2.23606797749979)
-      return [headKnotPosition[0], headKnotPosition[1]];
+  // console.log(currentHead[0], diffX, diffY);
 
-    return [tailKnotPosition[0] + 1, headKnotPosition[1]];
-  },
-  L: (headKnotPosition, tailKnotPosition, distance) => {
-    if (distance == 2.23606797749979)
-      return [headKnotPosition[0], headKnotPosition[1]];
+  if (diffX > 1 && !diffY) {
+    refX += currentHead[0] - currentKnot[0] > 0 ? 1 : -1;
+  } else if (diffY > 1 && !diffX) {
+    refY += currentHead[1] - currentKnot[1] > 0 ? 1 : -1;
+  } else {
+    refX += currentHead[0] - currentKnot[0] > 0 ? 1 : -1;
+    refY += currentHead[1] - currentKnot[1] > 0 ? 1 : -1;
+  }
 
-    return [tailKnotPosition[0] - 1, headKnotPosition[1]];
-  },
+  return [refX, refY];
 };
 
 function solution(input) {
-  let arraySim = Array.from({ length: 30 }, (x) =>
-    Array.from({ length: 30 }, (x) => '.')
-  );
+  //Just for writting the positions of the knots, just works for test input
+  //Real input is too big for my current screen
+  // let arraySim = Array.from({ length: 30 }, (x) =>
+  //   Array.from({ length: 30 }, (x) => '.')
+  // );
+
   let headPositions = [[0, 0]];
   let tailPositions = [
     [[0, 0]],
@@ -106,41 +102,34 @@ function solution(input) {
               differentTailPossitions[i].push(tail.at(-1));
           }
         } else {
-          //This is good because when this happens is when it needs to change
-
-          //This new solutions goes well until a certain point, it goes wrong on i > 2
-          let distance = calculateDistance(
-            tailPositions[i - 1].at(-1)[0],
-            currentTail[0],
-            tailPositions[i - 1].at(-1)[1],
-            currentTail[1]
+          let newMovement = knotMovement(
+            currentTail,
+            tailPositions[i - 1].at(-1)
           );
-          if (distance == 2 || distance == 2.23606797749979) {
-            tail.push(
-              knotMovement[direction](
-                tailPositions[i - 1].at(-2),
-                currentTail,
-                distance
-              )
-            );
-            //Something is wrong you need to draw it by hand to see how it SHOULD behave
-            if (i == 2 || i == 1)
-              arraySim[tail.at(-1)[1] + 14][tail.at(-1)[0] + 14] = '#';
+
+          if (newMovement) {
+            tail.push(newMovement);
             if (
-              !differentTailPossitions[i].some(
+              !differentTailPossitions[i].find(
                 (x) => x[0] == tail.at(-1)[0] && x[1] == tail.at(-1)[1]
               )
-            )
+            ) {
               differentTailPossitions[i].push(tail.at(-1));
+            }
+          }
+          //To draw the positions of the knot. Work just for test input
+          //Change i value to see a different knot
+          if (i == 8) {
+            // arraySim[tail.at(-1)[1] + 14][tail.at(-1)[0] + 14] = '#';
           }
         }
       });
     }
   });
+  // To draw the positions of the knot. Work just for test input
+  // for (let i = 0; i < arraySim.length; i++) console.log(...arraySim[i]);
 
-  for (let i = 0; i < arraySim.length; i++) console.log(...arraySim[i]);
-
-  return;
+  return differentTailPossitions.at(-1).length;
 }
-// console.log(solution(input));
-console.log(solution(testInput));
+console.log(solution(input));
+// console.log(solution(testInput));
