@@ -37,7 +37,6 @@ function solution(input) {
           x,
           y,
           height,
-          visited: false,
           neighbors: [],
           gScore: 0,
           fScore: Infinity,
