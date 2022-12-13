@@ -13,6 +13,7 @@ function solution(input) {
 
   // Iterate through input
   for (let i = 0; i < input.length; i += 2) {
+    //IF they are in order, sum the pair value
     result += checkArray(input[i], input[i + 1]) ? pair : 0;
     ++pair;
   }
