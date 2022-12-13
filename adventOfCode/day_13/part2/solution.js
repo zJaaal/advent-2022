@@ -20,7 +20,7 @@ function solution(input) {
   let lastIndexOfFirstDivider = -1;
   let lastIndexOfSecondDivider = -1;
 
-  //BubbleSort because there's no way to know which goes upper or lower because
+  //BubbleSort because there's no way to know which goes upper or lower
   //(at least that's my analysis)
   //So we need to check all with all
   for (let i = 0; i < input.length; i++) {
