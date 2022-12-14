@@ -113,6 +113,9 @@ function simulateFalling(currentArray, currentX, currentY) {
           //Set a sand there
           ++sand;
           currentArray[i][currentX] = 'O';
+
+          //You can uncomment this line to see how it gets filled
+          // console.table(currentArray);
           return true;
 
           //Down Right side is a "." there's a valid space
