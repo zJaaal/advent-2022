@@ -1,24 +1,28 @@
 function getOptimalPath(path) {
-  let result = new Set();
-  let traverseTree = (value, array, depth, position) => {
-    if (!array[depth]) {
-      console.log(value, depth);
-      result.add(value);
-      return;
-    }
+  // Recursive approach
+  // let result = new Set();
+  // let traverseTree = (value, array, depth, position) => {
+  //   if (!array[depth]) {
+  //     result.add(value);
+  //     return;
+  //   }
 
-    // console.log(array[depth]);
+  //   array[depth].forEach((cost, i) => {
+  //     if (i == position + 1 || i == position)
+  //       traverseTree(value + cost, array, depth + 1, i);
+  //   });
+  // };
 
-    array[depth].forEach((cost, i) => {
-      //position
+  // traverseTree(0, path, 0, 0);
 
-      traverseTree(value + cost, array, depth + 1);
-    });
-  };
+  // return result;
 
-  traverseTree(0, path, 0, 0);
-  // console.log(result);
-  return Math.min(...result);
+  //Another way to do it
+  return path.reduceRight((previous, current) => {
+    return current.map(
+      (value, index) => value + Math.min(previous[index], previous[index + 1])
+    );
+  })[0];
 }
 
 let path = [[0], [3, 4], [9, 8, 1]];
