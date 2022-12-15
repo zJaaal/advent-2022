@@ -32,8 +32,6 @@ function solution(input, maxRow) {
   let found = 0;
   let rowToCheck = 0;
 
-  let bitMap = Array.from({ length: maxRow + 1 }, (x) => 0);
-
   while (rowToCheck < maxRow) {
     let sensorsOnTouch = sensors
       .filter((sensor) => {
@@ -52,32 +50,38 @@ function solution(input, maxRow) {
         let maxXOcuppy = (totalRowOccupy - 1) / 2 + sensor.x;
         let minXOcuppy = Math.abs(sensor.x) - (totalRowOccupy - 1) / 2;
 
-        return {
-          ...sensor,
-          minXOcuppation: minXOcuppy,
-          maxXOcuppation: maxXOcuppy,
-          totalOccupation: totalRowOccupy,
-        };
-      });
+        return [minXOcuppy, maxXOcuppy];
+      })
+      .sort((x, y) => x[0] - y[0]);
 
-    sensorsOnTouch.forEach((sensor) => {
-      bitMap = bitMap.map((x, i) => {
-        if (i >= sensor.minXOcuppation && i <= sensor.maxXOcuppation) return 1;
-        return x;
-      });
-    });
-    if (new Set(bitMap).size == 2) {
-      found = bitMap.indexOf(0);
+    //Merge the ranges to know if all sensors cover the whole row
+    let ranges = sensorsOnTouch.reduce(
+      (merged, current, i) => {
+        if (!i) return merged;
+
+        let [start, end] = current;
+
+        if (start <= merged.at(-1)[1]) {
+          merged.at(-1)[1] = Math.max(end, merged.at(-1)[1]);
+        } else merged.push(current);
+
+        return merged;
+      },
+      [[sensorsOnTouch[0][0], sensorsOnTouch[0][1]]]
+    );
+
+    //If the sensors don't cover all the row,
+    //then there will be 2 ranges and the end of the first one + 1 is the position where the beacon is
+    if (ranges.length == 2) {
+      found = ranges[0][1] + 1;
       break;
     }
-
-    bitMap = bitMap.map((x) => 0);
     ++rowToCheck;
-    // console.log(rowToCheck);
   }
 
   return found * 4000000 + rowToCheck;
 }
 
-// console.log(solution(input, 4000000));
+console.log(solution(input, 4000000));
+
 // console.log(solution(testInput, 20));
