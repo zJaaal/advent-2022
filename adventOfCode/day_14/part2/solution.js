@@ -62,7 +62,7 @@ function solution(input) {
       0
     )
   ) {
-    console.log('Current simulated sand: ' + sand);
+    // console.log('Current simulated sand: ' + sand);
   }
   // console.table(simArray);
 
