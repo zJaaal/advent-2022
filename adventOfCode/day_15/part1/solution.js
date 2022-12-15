@@ -33,7 +33,7 @@ function solution(input, rowToCheck) {
 
   sensors = sensors
     .filter((sensor) => {
-      //To see if a sensor can touche the beacon
+      //To see if a sensor can touches the beacon
 
       if (sensor.y == rowToCheck) return true;
       if (sensor.y > rowToCheck)
