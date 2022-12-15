@@ -18,10 +18,6 @@ function solution(input, rowToCheck) {
     sensors.push({
       x: sensorCoors[0],
       y: sensorCoors[1],
-      nearestBeacon: {
-        x: beaconCoors[0],
-        y: beaconCoors[1],
-      },
       distance:
         Math.abs(sensorCoors[0] - beaconCoors[0]) +
         Math.abs(sensorCoors[1] - beaconCoors[1]),
@@ -33,7 +29,7 @@ function solution(input, rowToCheck) {
 
   sensors = sensors
     .filter((sensor) => {
-      //To see if a sensor can touches the beacon
+      //To see if a sensor can touch the row
 
       if (sensor.y == rowToCheck) return true;
       if (sensor.y > rowToCheck)
@@ -41,7 +37,7 @@ function solution(input, rowToCheck) {
       else return sensor.y + sensor.distance >= rowToCheck;
     })
     .map((sensor) => {
-      //This is the calculation to know how many rows does the signal touches
+      //This is the calculation to know how many blocks does the signal touches
       let distanceFromRow = Math.abs(rowToCheck - sensor.y);
       let totalRowOccupy = sensor.distance * 2 - distanceFromRow * 2 + 1;
 
