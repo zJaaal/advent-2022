@@ -66,8 +66,8 @@ function solution(input) {
       currentNode = valvesGraph[mostValuable];
 
       mostValuables.splice(indexOfMostValuable, 1);
-
       minutes -= foundNodes[2] + 1;
+      console.log(minutes);
       result += currentNode.flowRate * minutes;
     } else {
       --minutes;
@@ -86,7 +86,7 @@ function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
 
   let visitedNodes = new Set();
 
-  while (visitedNodes.size != nodeCount && queue.length) {
+  while (visitedNodes.size != nodeCount) {
     let next = queue.shift();
     // visitedNodes.add(next);
 
@@ -112,14 +112,14 @@ function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
     .map((x) => {
       let [node, priority, distance] = x.split('-');
 
-      let outCost = graph[node].paths.length >= 2 ? 0 : graph[node].distance;
+      let outCost = graph[node].paths.length == 1 ? 0 : graph[node].distance;
 
       return [
         node,
         +priority,
         +distance,
-        ((minutes - +distance + 1) * graph[node].flowRate) /
-          (+distance + 1 + outCost + +priority),
+        ((minutes - (+distance + 1)) * graph[node].flowRate) /
+          (+distance + 1 - outCost + +priority),
       ];
     })
     .sort((x, y) => y[3] - x[3]);
@@ -127,5 +127,5 @@ function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
   return mostValuable.shift();
 }
 
-console.log(solution(input));
-// console.log(solution(testInput));
+// console.log(solution(input));
+console.log(solution(testInput));
