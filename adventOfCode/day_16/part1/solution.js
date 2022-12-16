@@ -35,65 +35,96 @@ function solution(input) {
     if (!i) start = valvesGraph[valveName];
   });
 
+  let nodeCount = Object.keys(valvesGraph).length;
+
   let mostValuables = Object.keys(valvesGraph)
     .sort((x, y) => valvesGraph[y].flowRate - valvesGraph[x].flowRate)
     .filter((x) => valvesGraph[x].flowRate > 0);
 
+  // mostValuables.forEach((node) => console.log(valvesGraph[node].flowRate));
   let currentNode = start;
   let result = 0;
 
   while (minutes > 0) {
-    // console.log(queue);
-    let foundNodes = findShortestPath(valvesGraph, currentNode, mostValuables);
-    if (foundNodes.length) {
-      // foundNodes.forEach(([node]) => {
-      //   console.log(valvesGraph[node].distance);
-      // });
-      console.log(foundNodes);
-      let indexOfMostValuable = Math.min(...foundNodes.map((x) => x[1]));
+    let foundNodes = findShortestPath(
+      valvesGraph,
+      currentNode,
+      mostValuables,
+      nodeCount,
+      minutes
+    );
+
+    // console.log(foundNodes);
+
+    if (foundNodes) {
+      // console.log(foundNodes);
+
+      let indexOfMostValuable = foundNodes[1];
+
       let mostValuable = mostValuables[indexOfMostValuable];
+
       currentNode = valvesGraph[mostValuable];
+
       mostValuables.splice(indexOfMostValuable, 1);
-      result += currentNode.flowRate * (minutes - currentNode.distance - 1);
-      minutes -= currentNode.distance + 1;
+
+      minutes -= foundNodes[2] + 1;
+      result += currentNode.flowRate * minutes;
     } else {
       --minutes;
     }
-
-    // console.log(mostValuables);
   }
 
   return result;
 }
 
-function findShortestPath(graph, node, mostValuables) {
+function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
   node.distance = 0;
 
   let queue = [node];
 
-  let valuableEdges = [];
+  let valuableEdges = new Set();
 
-  while (!valuableEdges.length && mostValuables.length && queue.length) {
+  let visitedNodes = new Set();
+
+  while (visitedNodes.size != nodeCount && queue.length) {
     let next = queue.shift();
+    // visitedNodes.add(next);
 
     for (let i = 0; i < next.paths.length; i++) {
       let node = next.paths[i];
+      if (visitedNodes.has(node)) continue;
       graph[node].distance = next.distance + 1;
-      if (mostValuables.includes(node)) {
+
+      if (
+        mostValuables.includes(node) &&
+        !visitedNodes.has(node) &&
+        graph[node].distance + 1 <= minutes
+      ) {
         let indexOfNode = mostValuables.indexOf(node);
-        if (graph[node].flowRate >= 10) {
-          valuableEdges.push([node, indexOfNode]);
-        } else if (mostValuables.length < 3 && mostValuables.includes(node)) {
-          valuableEdges.push([node, indexOfNode]);
-        } else {
-          queue.push(graph[node]);
-        }
-      } else {
-        queue.push(graph[node]);
+        valuableEdges.add(`${node}-${indexOfNode}-${graph[node].distance}`);
       }
+      queue.push(graph[node]);
+      visitedNodes.add(node);
     }
   }
-  return valuableEdges;
+
+  let mostValuable = [...valuableEdges]
+    .map((x) => {
+      let [node, priority, distance] = x.split('-');
+
+      let outCost = graph[node].paths.length >= 2 ? 0 : graph[node].distance;
+
+      return [
+        node,
+        +priority,
+        +distance,
+        ((minutes - +distance + 1) * graph[node].flowRate) /
+          (+distance + 1 + outCost + +priority),
+      ];
+    })
+    .sort((x, y) => y[3] - x[3]);
+  console.log(mostValuable);
+  return mostValuable.shift();
 }
 
 console.log(solution(input));
