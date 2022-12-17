@@ -11,6 +11,7 @@ Work out the steps to release the most pressure in 30 minutes.
 What is the most pressure you can release?
  */
 
+//Works for test but not for real input
 function solution(input) {
   let valvesGraph = {};
   let start = {};
@@ -41,7 +42,7 @@ function solution(input) {
     .sort((x, y) => valvesGraph[y].flowRate - valvesGraph[x].flowRate)
     .filter((x) => valvesGraph[x].flowRate > 0);
 
-  // mostValuables.forEach((node) => console.log(valvesGraph[node].flowRate));
+  // mostValuables.forEach((node) => console.log(node));
   let currentNode = start;
   let result = 0;
 
@@ -54,11 +55,7 @@ function solution(input) {
       minutes
     );
 
-    // console.log(foundNodes);
-
     if (foundNodes) {
-      // console.log(foundNodes);
-
       let indexOfMostValuable = foundNodes[1];
 
       let mostValuable = mostValuables[indexOfMostValuable];
@@ -67,11 +64,11 @@ function solution(input) {
 
       mostValuables.splice(indexOfMostValuable, 1);
       minutes -= foundNodes[2] + 1;
-      console.log(minutes);
       result += currentNode.flowRate * minutes;
     } else {
       --minutes;
     }
+    // console.log(mostValuables);
   }
 
   return result;
@@ -95,11 +92,7 @@ function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
       if (visitedNodes.has(node)) continue;
       graph[node].distance = next.distance + 1;
 
-      if (
-        mostValuables.includes(node) &&
-        !visitedNodes.has(node) &&
-        graph[node].distance + 1 <= minutes
-      ) {
+      if (mostValuables.includes(node) && graph[node].distance + 1 <= minutes) {
         let indexOfNode = mostValuables.indexOf(node);
         valuableEdges.add(`${node}-${indexOfNode}-${graph[node].distance}`);
       }
@@ -110,22 +103,55 @@ function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
 
   let mostValuable = [...valuableEdges]
     .map((x) => {
-      let [node, priority, distance] = x.split('-');
+      let [node, index, distance] = x.split('-');
 
-      let outCost = graph[node].paths.length == 1 ? 0 : graph[node].distance;
+      // graph[node].paths.length <= 2 &&
+      //   console.log(node, findDistance(graph, node));
+
+      let outCost =
+        graph[node].paths.length >= 2 ? 0 : findDistance(graph, node);
 
       return [
         node,
-        +priority,
+        +index,
         +distance,
         ((minutes - (+distance + 1)) * graph[node].flowRate) /
-          (+distance + 1 - outCost + +priority),
+          (+distance + 1 + outCost),
       ];
     })
     .sort((x, y) => y[3] - x[3]);
-  console.log(mostValuable);
+  mostValuable.length && console.log(mostValuable);
   return mostValuable.shift();
 }
 
-// console.log(solution(input));
-console.log(solution(testInput));
+function findDistance(graph, node) {
+  graph[node].distance = 0;
+  let queue = [graph[node]];
+
+  let visitedNodes = new Set([node]);
+  let nodes = [];
+
+  do {
+    let next = queue.shift();
+    for (let i = 0; i < next.paths.length; i++) {
+      if (!visitedNodes.has(next.paths[i])) {
+        let currentNode = graph[next.paths[i]];
+
+        currentNode.distance = next.distance + 1;
+        queue.push(currentNode);
+        nodes.push(currentNode);
+      }
+      visitedNodes.add(next.paths[i]);
+    }
+  } while (queue[0].paths.length < 3);
+
+  // console.log(
+  //   nodes.sort((x, y) => y.distance - x.distance),
+  //   node
+  // );
+
+  return nodes.sort((x, y) => y.distance - x.distance).at(-1).distance;
+}
+
+console.log(solution(input));
+// console.log(solution(testInput));
