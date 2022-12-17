@@ -31,6 +31,7 @@ function solution(input) {
       flowRate,
       paths,
       distance: Infinity,
+      name: valveName,
     };
 
     if (!i) start = valvesGraph[valveName];
@@ -49,7 +50,7 @@ function solution(input) {
   while (minutes > 0) {
     let foundNodes = findShortestPath(
       valvesGraph,
-      currentNode,
+      currentNode.name,
       mostValuables,
       nodeCount,
       minutes
@@ -74,18 +75,18 @@ function solution(input) {
   return result;
 }
 
-function findShortestPath(graph, node, mostValuables, nodeCount, minutes) {
-  node.distance = 0;
+function findShortestPath(graph, nodeName, mostValuables, nodeCount, minutes) {
+  graph[nodeName].distance = 0;
 
-  let queue = [node];
+  let queue = [graph[nodeName]];
 
   let valuableEdges = new Set();
 
-  let visitedNodes = new Set();
+  let visitedNodes = new Set([nodeName]);
 
   while (visitedNodes.size != nodeCount) {
     let next = queue.shift();
-    // visitedNodes.add(next);
+    visitedNodes.add(next.name);
 
     for (let i = 0; i < next.paths.length; i++) {
       let node = next.paths[i];
@@ -153,5 +154,5 @@ function findDistance(graph, node) {
   return nodes.sort((x, y) => y.distance - x.distance).at(-1).distance;
 }
 
-console.log(solution(input));
-// console.log(solution(testInput));
+// console.log(solution(input));
+console.log(solution(testInput));
