@@ -53,19 +53,22 @@ function solution(input) {
   console.log(shortestPaths);
 
   let permutations = [];
+
+  //The permutations goes to 15! which is even more than an array can handle
+  //Should simulate all the possible best solutions as in my last algorithm
   genPermutations(nodes.slice(1), nodes.length - 1, start.name, permutations);
 
   let memoizeFindPoints = memo(findTotalPoints);
 
   let finalResult = [];
 
-  // // memoizeFindPoints('AA', 'HH', shortestPaths, start.name);
-  // console.log(memoizeFindPoints('HH', 'CC', shortestPaths, start.name));
-  // // memoizeFindPoints('DD', 'JJ', shortestPaths, start.name);
-  // // memoizeFindPoints('EE', 'CC', shortestPaths, start.name);
-  // console.log(memoizeFindPoints('HH', 'EE', shortestPaths, start.name));
+  // // // memoizeFindPoints('AA', 'HH', shortestPaths, start.name);
+  // // console.log(memoizeFindPoints('HH', 'CC', shortestPaths, start.name));
+  // // // memoizeFindPoints('DD', 'JJ', shortestPaths, start.name);
+  // // // memoizeFindPoints('EE', 'CC', shortestPaths, start.name);
+  // // console.log(memoizeFindPoints('HH', 'EE', shortestPaths, start.name));
 
-  // // console.log(permutations);
+  // console.log(permutations.length);
   permutations.forEach((set) => {
     let minutes = 30;
     let result = 0;
@@ -133,10 +136,10 @@ function findShortestPath(nodes, paths) {
 
   // console.log(nodes);
 
+  //Circular references are happening here
   while (visitedNodes.size < nodes.length) {
     let node = queue.shift();
     let next = paths[node];
-    // console.log(visitedNodes, next);
     for (let i = 0; i < nodes.length; i++) {
       if (nodes[i] == node) continue;
 
@@ -146,10 +149,15 @@ function findShortestPath(nodes, paths) {
           prev: node,
         };
       } else if (shortestPath[nodes[i]].totalCost > next[nodes[i]]) {
-        shortestPath[nodes[i]] = {
-          totalCost: next[nodes[i]],
-          prev: node,
-        };
+        if (
+          typeof shortestPath[node] != 'undefined' &&
+          shortestPath[node].prev != nodes[i]
+        ) {
+          shortestPath[nodes[i]] = {
+            totalCost: next[nodes[i]],
+            prev: node,
+          };
+        } else continue;
       }
       if (!visitedNodes.has(nodes[i])) {
         queue.push(nodes[i]);
