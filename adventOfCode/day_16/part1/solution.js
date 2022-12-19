@@ -15,7 +15,6 @@ What is the most pressure you can release?
 function solution(input) {
   let valvesGraph = {};
   let start = {};
-  let minutes = 30;
 
   let inputArray = input.split('\n');
 
@@ -51,14 +50,46 @@ function solution(input) {
   // console.log(nodePaths);
   let shortestPaths = findShortestPath(nodes, nodePaths);
 
-  // let points = findTotalPoints('HH', 'CC', shortestPaths, nodes[0]);
+  console.log(shortestPaths);
 
-  return shortestPaths;
+  let permutations = [];
+  genPermutations(nodes.slice(1), nodes.length - 1, start.name, permutations);
+
+  let memoizeFindPoints = memo(findTotalPoints);
+
+  let finalResult = [];
+
+  // // memoizeFindPoints('AA', 'HH', shortestPaths, start.name);
+  // console.log(memoizeFindPoints('HH', 'CC', shortestPaths, start.name));
+  // // memoizeFindPoints('DD', 'JJ', shortestPaths, start.name);
+  // // memoizeFindPoints('EE', 'CC', shortestPaths, start.name);
+  // console.log(memoizeFindPoints('HH', 'EE', shortestPaths, start.name));
+
+  // // console.log(permutations);
+  permutations.forEach((set) => {
+    let minutes = 30;
+    let result = 0;
+    let setArray = set.split(' ');
+    for (let i = 1; i < setArray.length; i++) {
+      let value = memoizeFindPoints(
+        setArray[i - 1],
+        setArray[i],
+        shortestPaths,
+        start.name
+      );
+      // console.log(setArray[i - 1], setArray[i], value);
+      minutes -= value + 1;
+      if (minutes < 0) break;
+      result += valvesGraph[setArray[i]].flowRate * minutes;
+    }
+    finalResult.push([result, set]);
+  });
+
+  return finalResult.sort((x, y) => y[0] - x[0]).shift()[0];
 }
 
 function findPathsToNodes(graph, nodes) {
   let nodesDistances = {};
-
   nodes.forEach((node) => {
     graph[node].distance = 0;
 
@@ -73,13 +104,11 @@ function findPathsToNodes(graph, nodes) {
         let currentNode = next.paths[i];
         if (visitedNodes.has(currentNode)) continue;
         graph[currentNode].distance = next.distance + 1;
-
         if (nodes.includes(currentNode)) {
           nodesDistances[node] = {
             ...nodesDistances[node],
             [currentNode]: graph[currentNode].distance,
           };
-
           visitedNodes.add(currentNode);
         }
         queue.push(graph[currentNode]);
@@ -91,6 +120,7 @@ function findPathsToNodes(graph, nodes) {
 }
 
 function findShortestPath(nodes, paths) {
+  // console.log(paths);
   let queue = [nodes[0]];
   let visitedNodes = new Set();
 
@@ -101,25 +131,30 @@ function findShortestPath(nodes, paths) {
     },
   };
 
+  // console.log(nodes);
+
   while (visitedNodes.size < nodes.length) {
     let node = queue.shift();
     let next = paths[node];
-
+    // console.log(visitedNodes, next);
     for (let i = 0; i < nodes.length; i++) {
-      if (visitedNodes.has(nodes[i])) continue;
-      // console.log(nodes[i], node);
+      if (nodes[i] == node) continue;
+
       if (typeof shortestPath[nodes[i]] == 'undefined') {
         shortestPath[nodes[i]] = {
-          totalCost: next[nodes[i]] + shortestPath[node].totalCost,
+          totalCost: next[nodes[i]],
           prev: node,
         };
       } else if (shortestPath[nodes[i]].totalCost > next[nodes[i]]) {
         shortestPath[nodes[i]] = {
-          totalCost: next[nodes[i]] + shortestPath[node].totalCost,
+          totalCost: next[nodes[i]],
           prev: node,
         };
       }
-      queue.push(nodes[i]);
+      if (!visitedNodes.has(nodes[i])) {
+        queue.push(nodes[i]);
+        // console.log(node);
+      }
     }
     visitedNodes.add(node);
   }
@@ -135,42 +170,85 @@ function findTotalPoints(nodeFrom, nodeTo, shortestPaths, startNode) {
   let nodeFromPath = [];
   let nodeToPath = [];
 
+  let fromResult = 0;
+  let toResult = 0;
+  let encounterResult = 0;
+
   while (currentFromNode != startNode || currentToNode != startNode) {
+    fromResult += shortestPaths[currentFromNode].totalCost;
     currentFromNode = shortestPaths[currentFromNode].prev;
     if (nodeFromPath.at(-1) != startNode) nodeFromPath.push(currentFromNode);
 
+    toResult += shortestPaths[currentToNode].totalCost;
     currentToNode = shortestPaths[currentToNode].prev;
     if (nodeToPath.at(-1) != startNode) nodeToPath.push(currentToNode);
   }
 
-  if (nodeFromPath.find((x) => x == nodeTo))
-    return (
-      shortestPaths[nodeFrom].totalCost +
-      Math.abs(
-        shortestPaths[nodeFrom].totalCost - shortestPaths[nodeTo].totalCost
-      )
-    );
-  else {
+  if (
+    nodeFromPath.find((x) => x == nodeTo) ||
+    nodeToPath.find((x) => x == nodeFrom)
+  ) {
+    return Math.abs(fromResult - toResult);
+  } else {
     for (let i = 0; i < nodeFromPath.length; i++) {
-      let possibleEncounter = nodeToPath.find((x) => x == nodeFromPath[i]);
-      // console.log(possibleEncounter);
-      if (possibleEncounter) {
-        encounter = possibleEncounter;
+      let possibleEncounter = nodeToPath.findLastIndex(
+        (x) => x == nodeFromPath[i]
+      );
+      if (possibleEncounter >= 0) {
+        encounter = nodeToPath[possibleEncounter];
         break;
       }
+    }
+    let currentEncounter = encounter;
+    while (currentEncounter != startNode) {
+      encounterResult += shortestPaths[currentEncounter].totalCost;
+      currentEncounter = shortestPaths[currentEncounter].prev;
     }
   }
 
   return (
-    shortestPaths[nodeFrom].totalCost +
-    (Math.abs(
-      shortestPaths[nodeFrom].totalCost - shortestPaths[encounter].totalCost
-    ) +
-      Math.abs(
-        shortestPaths[nodeTo].totalCost - shortestPaths[encounter].totalCost
-      ))
+    Math.abs(fromResult - encounterResult) +
+    Math.abs(toResult - encounterResult)
   );
 }
+
+const genPermutations = (a, size, start, result) => {
+  if (size == 1 && !result.includes(start + ' ' + a.join(' '))) {
+    result.push(start + ' ' + a.join(' '));
+    return;
+  }
+
+  for (let i = 0; i < size; i++) {
+    genPermutations(a, size - 1, start, result);
+
+    if (size % 2 == 1) {
+      let temp = a[0];
+      a[0] = a[size - 1];
+      a[size - 1] = temp;
+    }
+
+    if (size % 2 == 0) {
+      let temp = a[i];
+      a[i] = a[size - 1];
+      a[size - 1] = temp;
+    }
+  }
+};
+
+const memo = (fun) => {
+  let cache = new Map();
+
+  return (...args) => {
+    let [keyOne, keyTwo] = args;
+
+    if (cache.has(keyOne + keyTwo)) return cache.get(keyOne + keyTwo);
+    else {
+      let result = fun(...args);
+      cache.set(keyOne + keyTwo, result);
+      return result;
+    }
+  };
+};
 
 // console.log(solution(input));
 console.log(solution(testInput));
