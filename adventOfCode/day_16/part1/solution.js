@@ -37,189 +37,140 @@ function solution(input) {
     if (!i) start = valvesGraph[valveName];
   });
 
-  let nodeCount = Object.keys(valvesGraph).length;
+  let nodes = [
+    start.name,
+    ...Object.keys(valvesGraph)
+      .sort((x, y) => valvesGraph[y].flowRate - valvesGraph[x].flowRate)
+      .filter((x) => valvesGraph[x].flowRate > 0),
+  ];
 
-  let mostValuables = Object.keys(valvesGraph)
-    .sort((x, y) => valvesGraph[y].flowRate - valvesGraph[x].flowRate)
-    .filter((x) => valvesGraph[x].flowRate > 0);
+  // console.log(nodes);
 
-  // mostValuables.forEach((node) => console.log(node));
-  let currentNode = start;
-  let result = 0;
+  let nodePaths = findPathsToNodes(valvesGraph, nodes);
 
-  let foundNodes = findShortestPath(
-    valvesGraph,
-    currentNode.name,
-    mostValuables,
-    nodeCount,
-    minutes
-  );
-  // while (minutes > 0) {
+  // console.log(nodePaths);
+  let shortestPaths = findShortestPath(nodes, nodePaths);
 
-  //   if (foundNodes) {
-  //     let indexOfMostValuable = foundNodes[1];
+  // let points = findTotalPoints('HH', 'CC', shortestPaths, nodes[0]);
 
-  //     let mostValuable = mostValuables[indexOfMostValuable];
-
-  //     currentNode = valvesGraph[mostValuable];
-
-  //     mostValuables.splice(indexOfMostValuable, 1);
-  //     minutes -= foundNodes[2] + 1;
-  //     result += currentNode.flowRate * minutes;
-  //   } else {
-  //     --minutes;
-  //   }
-  //   // console.log(mostValuables);
-  // }
-
-  let lol = findFinalPoints(
-    valvesGraph,
-    foundNodes,
-    {},
-    30,
-    mostValuables,
-    nodeCount,
-    start.name
-  );
-  // console.log(lol);
-  return (
-    Object.entries(lol)
-      .sort((x, y) => y[1].result - x[1].result)
-      // .filter((x) => x[0].match(/FYTG/) && !x[1].minutes)
-      .slice(0, 10)
-      .shift()[1].result
-  );
+  return shortestPaths;
 }
 
-function findShortestPath(graph, nodeName, mostValuables, nodeCount, minutes) {
-  graph[nodeName].distance = 0;
+function findPathsToNodes(graph, nodes) {
+  let nodesDistances = {};
 
-  let queue = [graph[nodeName]];
+  nodes.forEach((node) => {
+    graph[node].distance = 0;
 
-  let valuableEdges = new Set();
+    let queue = [graph[node]];
 
-  let visitedNodes = new Set([nodeName]);
+    let visitedNodes = new Set([node]);
 
-  while (visitedNodes.size != nodeCount) {
-    let next = queue.shift();
+    while (visitedNodes.size < nodes.length) {
+      let next = queue.shift();
 
-    for (let i = 0; i < next.paths.length; i++) {
-      let node = next.paths[i];
-      if (visitedNodes.has(node)) continue;
-      graph[node].distance = next.distance + 1;
+      for (let i = 0; i < next.paths.length; i++) {
+        let currentNode = next.paths[i];
+        if (visitedNodes.has(currentNode)) continue;
+        graph[currentNode].distance = next.distance + 1;
 
-      if (
-        mostValuables.includes(node) &&
-        minutes - graph[node].distance + 1 >= 0
-      ) {
-        let indexOfNode = mostValuables.indexOf(node);
-        valuableEdges.add(`${node}-${indexOfNode}-${graph[node].distance}`);
+        if (nodes.includes(currentNode)) {
+          nodesDistances[node] = {
+            ...nodesDistances[node],
+            [currentNode]: graph[currentNode].distance,
+          };
+
+          visitedNodes.add(currentNode);
+        }
+        queue.push(graph[currentNode]);
       }
-      queue.push(graph[node]);
-      visitedNodes.add(node);
+    }
+  });
+
+  return nodesDistances;
+}
+
+function findShortestPath(nodes, paths) {
+  let queue = [nodes[0]];
+  let visitedNodes = new Set();
+
+  let shortestPath = {
+    [nodes[0]]: {
+      totalCost: 0,
+      prev: nodes[0],
+    },
+  };
+
+  while (visitedNodes.size < nodes.length) {
+    let node = queue.shift();
+    let next = paths[node];
+
+    for (let i = 0; i < nodes.length; i++) {
+      if (visitedNodes.has(nodes[i])) continue;
+      // console.log(nodes[i], node);
+      if (typeof shortestPath[nodes[i]] == 'undefined') {
+        shortestPath[nodes[i]] = {
+          totalCost: next[nodes[i]] + shortestPath[node].totalCost,
+          prev: node,
+        };
+      } else if (shortestPath[nodes[i]].totalCost > next[nodes[i]]) {
+        shortestPath[nodes[i]] = {
+          totalCost: next[nodes[i]] + shortestPath[node].totalCost,
+          prev: node,
+        };
+      }
+      queue.push(nodes[i]);
+    }
+    visitedNodes.add(node);
+  }
+
+  return shortestPath;
+}
+
+function findTotalPoints(nodeFrom, nodeTo, shortestPaths, startNode) {
+  let currentFromNode = nodeFrom;
+  let currentToNode = nodeTo;
+  let encounter = '';
+
+  let nodeFromPath = [];
+  let nodeToPath = [];
+
+  while (currentFromNode != startNode || currentToNode != startNode) {
+    currentFromNode = shortestPaths[currentFromNode].prev;
+    if (nodeFromPath.at(-1) != startNode) nodeFromPath.push(currentFromNode);
+
+    currentToNode = shortestPaths[currentToNode].prev;
+    if (nodeToPath.at(-1) != startNode) nodeToPath.push(currentToNode);
+  }
+
+  if (nodeFromPath.find((x) => x == nodeTo))
+    return (
+      shortestPaths[nodeFrom].totalCost +
+      Math.abs(
+        shortestPaths[nodeFrom].totalCost - shortestPaths[nodeTo].totalCost
+      )
+    );
+  else {
+    for (let i = 0; i < nodeFromPath.length; i++) {
+      let possibleEncounter = nodeToPath.find((x) => x == nodeFromPath[i]);
+      // console.log(possibleEncounter);
+      if (possibleEncounter) {
+        encounter = possibleEncounter;
+        break;
+      }
     }
   }
 
-  let mostValuable = [...valuableEdges].map((x) => {
-    let [node, index, distance] = x.split('-');
-
-    // graph[node].paths.length <= 2 &&
-    //   console.log(node, findDistance(graph, node));
-
-    // let outCost =
-    //   graph[node].paths.length >= 2 ? 0 : findDistance(graph, node);
-
-    return [
-      node,
-      +index,
-      +distance,
-      // ((minutes - (+distance + 1)) * graph[node].flowRate) /
-      //   (+distance + 1 + outCost),
-    ];
-  });
-  // .sort((x, y) => y[3] - x[3]);
-  return mostValuable;
+  return (
+    shortestPaths[nodeFrom].totalCost +
+    (Math.abs(
+      shortestPaths[nodeFrom].totalCost - shortestPaths[encounter].totalCost
+    ) +
+      Math.abs(
+        shortestPaths[nodeTo].totalCost - shortestPaths[encounter].totalCost
+      ))
+  );
 }
 
-function findDistance(graph, node) {
-  graph[node].distance = 0;
-  let queue = [graph[node]];
-
-  let visitedNodes = new Set([node]);
-  let nodes = [];
-
-  do {
-    let next = queue.shift();
-    for (let i = 0; i < next.paths.length; i++) {
-      if (!visitedNodes.has(next.paths[i])) {
-        let currentNode = graph[next.paths[i]];
-
-        currentNode.distance = next.distance + 1;
-        queue.push(currentNode);
-        nodes.push(currentNode);
-      }
-      visitedNodes.add(next.paths[i]);
-    }
-  } while (queue[0].paths.length < 3);
-
-  // console.log(
-  //   nodes.sort((x, y) => y.distance - x.distance),
-  //   node
-  // );
-
-  return nodes.sort((x, y) => y.distance - x.distance).at(-1).distance;
-}
-
-function findFinalPoints(
-  graph,
-  nodes,
-  currentPoints,
-  minutes,
-  mostValuables,
-  nodeCount,
-  currentPath
-) {
-  if (nodes || minutes > 0)
-    nodes.forEach((node) => {
-      let indexOfMostValuable = node[1];
-
-      let mostValuableCopy = [...mostValuables];
-
-      mostValuableCopy.splice(indexOfMostValuable, 1);
-
-      let currentMinutes = minutes - (node[2] + 1);
-
-      if (currentMinutes < 0) return;
-
-      currentPoints[currentPath + node[0]] = {
-        ...currentPoints[currentPath],
-        result: currentPoints[currentPath]
-          ? currentPoints[currentPath].result +
-            currentMinutes * graph[node[0]].flowRate
-          : currentMinutes * graph[node[0]].flowRate,
-        minutes: currentMinutes,
-      };
-
-      let mostValuablesNodes = findShortestPath(
-        graph,
-        node[0],
-        mostValuableCopy,
-        nodeCount,
-        currentMinutes
-      );
-
-      currentPoints = findFinalPoints(
-        graph,
-        mostValuablesNodes,
-        currentPoints,
-        currentMinutes,
-        mostValuableCopy,
-        nodeCount,
-        currentPath + node[0]
-      );
-    });
-  return currentPoints;
-}
-
-console.log(solution(input));
-// console.log(solution(testInput));
+// console.log(solution(input));
+console.log(solution(testInput));
