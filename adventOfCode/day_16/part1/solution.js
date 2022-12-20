@@ -136,7 +136,6 @@ function findShortestPath(nodes, paths) {
 
   // console.log(nodes);
 
-  //Circular references are happening here
   while (visitedNodes.size < nodes.length) {
     let node = queue.shift();
     let next = paths[node];
@@ -149,6 +148,7 @@ function findShortestPath(nodes, paths) {
           prev: node,
         };
       } else if (shortestPath[nodes[i]].totalCost > next[nodes[i]]) {
+        //With this validation I break the circular references
         if (
           typeof shortestPath[node] != 'undefined' &&
           shortestPath[node].prev != nodes[i]
