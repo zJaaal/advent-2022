@@ -1,19 +1,29 @@
 function howManyReindeers(reindeerTypes, gifts) {
   return gifts.map(({ country, weight }) => {
     let currentMax = weight;
+
+    //Get all the usable reindeers
     let weights = reindeerTypes
       .filter((x) => x.weightCapacity < currentMax)
       .sort((x, y) => y.weightCapacity - x.weightCapacity);
 
+    //Get the max they can carry together (one of each of them)
     let currentCapacity = weights.reduce(
       (acc, curr) => (acc += curr.weightCapacity),
       0
     );
-
+    //Get the number of reindeers by type
     let reindeers = weights.map(({ type, weightCapacity }) => {
-      let num = (currentMax / currentCapacity) >> 0;
+      //Get the num of the current type in descending order
+      let num = (currentMax / currentCapacity) >> 0; //The integer of this division tells us how much of the current type we need
+
+      //We substract this type weightCapacity from the total capacity we calculated
       currentCapacity -= weightCapacity;
+
+      //And substract how much this team of reindeers can carry
+      //of the currentMax weight we need to carry
       currentMax -= num * weightCapacity;
+
       return { type, num };
     });
 
