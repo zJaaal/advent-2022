@@ -1,5 +1,6 @@
 function howManyReindeers(reindeerTypes, gifts) {
   return gifts.map(({ country, weight }) => {
+    //The weight we need to carry per country
     let currentMax = weight;
 
     //Get all the usable reindeers
