@@ -1,12 +1,13 @@
 function checkStepNumbers(systemNames, stepNumbers) {
-  let hashMap = {};
+  let hashMap = new Map();
 
   return systemNames.every(
-    (x, i, flag) => (
-      (flag = !!(!hashMap[x] && (hashMap[x] = [stepNumbers[i]]))),
+    (name, i, flag, value) => (
+      (value = hashMap.get(name)),
+      (flag = !!(!value && hashMap.set(name, [stepNumbers[i]]))),
       !flag &&
-        ((flag = hashMap[x].at(-1) < stepNumbers[i]), flag) &&
-        hashMap[x].push(stepNumbers[i]),
+        ((flag = value.at(-1) < stepNumbers[i]), flag) &&
+        value.push(stepNumbers[i]),
       flag
     )
   );
