@@ -64,7 +64,7 @@ function searchNode(node, path) {
     //No more path, return the node
     if (!path.length) return node;
     else {
-      //Didn't found? Search in its children
+      //Still having path left? Keep going through
       for (let i = 0; i < node.children.length; i++) {
         let foundNode = searchNode(node.children[i], path);
         //Found? Return it
