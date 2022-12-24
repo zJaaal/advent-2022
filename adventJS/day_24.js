@@ -1,9 +1,11 @@
+//Day 24 solved using A*
+
 function canExit(maze) {
   let start, end;
 
   //To calculate distance to the end
   let calculateDistance = (node, end) =>
-    Math.sqrt((node.x - end.x) ** 2 + (node.y - end.x) ** 2);
+    Math.sqrt((node.x - end.x) ** 2 + (node.y - end.y) ** 2);
   //To search neighbors
   let steps = [
     [-1, 0], //up
@@ -15,17 +17,17 @@ function canExit(maze) {
   //Array to graph
   maze
     .map((row, y) => {
-      return row.map((col, x) => {
+      return row.map((value, x) => {
         let node = {
           x,
           y,
-          value: col,
+          value,
           neighbors: [],
           gScore: 0,
           fScore: Infinity,
         };
-        if (col == 'S') start = node;
-        else if (col == 'E') end = node;
+        if (value == 'S') start = node;
+        else if (value == 'E') end = node;
         return node;
       });
     })

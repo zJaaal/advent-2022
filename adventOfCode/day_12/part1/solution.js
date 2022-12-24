@@ -12,7 +12,7 @@ from your current position to the location that should get the best signal?
 let start, end;
 
 let calculateDistance = (node, end) =>
-  Math.sqrt((node.x - end.x) ** 2 + (node.y - end.x) ** 2);
+  Math.sqrt((node.x - end.x) ** 2 + (node.y - end.y) ** 2);
 
 let steps = [
   [-1, 0], //up
