@@ -6,12 +6,11 @@ function executeCommands(commands) {
   let actions = {
     MOV: (value, memoryPointer) => {
       memoryPointer = +memoryPointer.replace(/V\d/, '');
-      if (isNaN(+value)) {
-        value = +value.replace(/V\d/, '');
-        memory[memoryPointer] = memory[value];
-      } else {
-        memory[memoryPointer] = +value;
-      }
+      memory[memoryPointer] = +value;
+      isNaN(+value) &&
+        ((value = +value.replace(/V\d/, '')),
+        (memory[memoryPointer] = memory[value]));
+
       ++pointer;
     },
     DEC: (memoryPointer) => {
@@ -31,7 +30,8 @@ function executeCommands(commands) {
       ++pointer;
     },
     JMP: (index) => {
-      pointer = memory[0] ? +index : pointer + 1;
+      ++pointer;
+      memory[0] && (pointer = +index);
     },
   };
 
