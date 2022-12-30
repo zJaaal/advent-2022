@@ -18,7 +18,8 @@ function carryGifts(gifts, maxWeight) {
     .filter((x) => x.length);
 }
 
-console.log(carryGifts(['toy', 'toy', 'toy', 'toy'], 2));
+console.log(carryGifts(['toy', 'toy', 'toy', 'toy'], 9));
+// ['toy toy toy', 'toy']
 // ['game bike', 'book toy']
 // in each bag you can carry 10kg
 // the first bag carries 'game' and 'bike' which weigh 4kg and 4kg
